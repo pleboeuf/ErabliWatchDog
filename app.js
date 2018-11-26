@@ -1,6 +1,6 @@
 var exec = require('child_process').exec;
 var fs = require("fs"); //Load the filesystem module
-var myFile = "/home/erabliere/ErabliCollecteur/raw_events.sqlite3";
+var myFile = "/Users/pierre/Documents/code-erabliere/ErabliCollecteur/raw_events.sqlite3";
 var firstRunFlag = true;
 var lastFileSize = 0;
 var maxDelay = 0;
@@ -27,7 +27,7 @@ var interval = setInterval(function(){
 }, 10000);
 
 function restartCollecteur(){
-	var child = exec('sudo /etc/init.d/ErabliCollecteur restart --force', function(error, stdout, stderr) {
+	var child = exec('sudo node /Users/pierre/Documents/code-erabliere/ErabliCollecteur/app.js', function(error, stdout, stderr) {
 		if (error) console.log(error);
 		process.stdout.write(stdout);
 		process.stderr.write(stderr);
