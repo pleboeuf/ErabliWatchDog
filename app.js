@@ -1,4 +1,4 @@
- var exec = require('child_process').exec;
+var exec = require('child_process').exec;
 var fs = require("fs"); //Load the filesystem module
 var myFile = "/Users/pierre/Documents/code-erabliere/ErabliCollecteur/raw_events.sqlite3";
 var firstRunFlag = true;

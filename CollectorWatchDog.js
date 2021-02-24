@@ -1,31 +1,33 @@
-var exec = require('child_process').exec;
+const exec = require('child_process').exec;
 const util = require('util');
 const fs = require("fs"); //Load the filesystem module
 const dbFile = "/Users/pierre/Documents/code-erabliere/ErabliCollecteur/raw_events.sqlite3";
-const prevTimeStore = "/Users/pierre/Documents/code-erabliere/ErabliWatchDog/prevTime.txt";
+const logPath = "/Users/pierre/Documents/code-erabliere/ErabliWatchDog/log/restart.log";
 const timeoutLimit = 180; // 3 minutes
 
 function checkActivity() {
-	var stats = fs.statSync(dbFile);
-	var fileSizeInBytes = stats["size"];
-	var modTime = stats["mtime"];
-	var date = new Date(modTime);
-	var prevFileTime = 0;
+	const stats = fs.statSync(dbFile);
+	const fileSizeInBytes = stats["size"];
+	const modTime = stats["mtime"];
+	const date = new Date(modTime);
 	// Check db fileTime
 	var timeNow = new Date().getTime() / 1000;
 	var fileTime = date.getTime() / 1000;
 
 	// Compare the readings 
-	var dt = (timeNow - fileTime).toFixed(0);
-	console.log("File size is: " + fileSizeInBytes + ", Last mod. : " + modTime + ", dt: " + dt + " sec." + ", max delay: ");
-	// if (diff > timeoutLimit) -> redémarrage requis!
-	if (dt > timeoutLimit) {
-		console.log("Attention: Le collecteur de données à cessez de fonctionner!!!" + ", Last mod. : " + modTime);
-		console.log(" Re-demarrage du collecteur...");
+	var timeDiff = (timeNow - fileTime).toFixed(0);
+	if (timeDiff > timeoutLimit) {
+		fs.open(logPath, 'a', (err, fd) => {
+			fs.write(fd, "Re-demarrage du collecteur: "  + Date() + ", file size: " + fileSizeInBytes + "b, Last mod.: " + modTime + ", delta t: " + timeDiff + " sec.\n", 'utf-8', 'a', (err, fd) => {
+				if (err) { console.log(err);}
+			});
+		});
+		fs.close(fd);
 		// restartCollecteur();
 	} else {
-		console.log("Collecteur de données en onctionnement!");
+		console.log("Collecteur de données en fonctionnement!");
 	}
+	return;
 }
 
 function restartCollecteur(){
@@ -37,10 +39,9 @@ function restartCollecteur(){
 	});
 }
 
-
 try {
 	checkActivity();
 } catch (error) {
 	console.error(error);
 }
-// This file will be executed by CRON every minute
+// This file will be executed by CRON every 5 minutes
