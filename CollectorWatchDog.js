@@ -44,12 +44,12 @@ function restartCollecteur(){
 		process.stderr.write(stderr);
 		return 0;
 	});
-	//~ var child = exec('systemctl restart ErabliExport.service', function(error, stdout, stderr) {
-		//~ if (error) console.log(error);
-		//~ process.stdout.write(stdout);
-		//~ process.stderr.write(stderr);
-		//~ return 0;
-	//~ });
+	var child = exec('systemctl restart ErabliExport.service', function(error, stdout, stderr) {
+		if (error) console.log(error);
+		process.stdout.write(stdout);
+		process.stderr.write(stderr);
+		return 0;
+	});
 	return;
 }
 
