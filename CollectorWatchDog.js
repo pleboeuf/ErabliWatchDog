@@ -1,9 +1,9 @@
 const exec = require('child_process').exec;
 const util = require('util');
 const fs = require("fs"); //Load the filesystem module
-const dbFile = "/Users/pierre/Documents/code-erabliere/ErabliCollecteur/raw_events.sqlite3";
-const logPath = "/Users/pierre/Documents/code-erabliere/ErabliWatchDog/log/restart.log";
-const timeoutLimit = 180; // 3 minutes
+const dbFile = "/home/erabliere/ErabliCollecteur/raw_events.sqlite3";
+const logPath = "/home/erabliere/ErabliWatchDog/log/restart.log";
+const timeoutLimit = 60; // 1 minutes
 
 function checkActivity() {
 	const stats = fs.statSync(dbFile);
@@ -22,10 +22,11 @@ function checkActivity() {
 				if (err) { console.log(err);}
 			});
 		});
-		fs.close(fd);
-		// restartCollecteur();
+		// fs.close(fd);
+		console.log("Red/marrage du Collecteur de données...");
+		restartCollecteur();
 	} else {
-		console.log("Collecteur de données en fonctionnement!");
+		console.log("Collecteur de données en fonctionnement! " + " Delta t: " + timeDiff + " sec.");
 	}
 	return;
 }
@@ -37,6 +38,19 @@ function restartCollecteur(){
 		process.stderr.write(stderr);
 		return 0;
 	});
+	var child = exec('systemctl restart ErabliDash.service', function(error, stdout, stderr) {
+		if (error) console.log(error);
+		process.stdout.write(stdout);
+		process.stderr.write(stderr);
+		return 0;
+	});
+	//~ var child = exec('systemctl restart ErabliExport.service', function(error, stdout, stderr) {
+		//~ if (error) console.log(error);
+		//~ process.stdout.write(stdout);
+		//~ process.stderr.write(stderr);
+		//~ return 0;
+	//~ });
+	return;
 }
 
 try {
