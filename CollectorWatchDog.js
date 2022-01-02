@@ -3,7 +3,8 @@ const util = require('util');
 const fs = require("fs"); //Load the filesystem module
 const dbFile = "/home/erabliere/ErabliCollecteur/raw_events.sqlite3";
 const logPath = "/home/erabliere/ErabliWatchDog/log/restart.log";
-const timeoutLimit = 60; // 1 minutes
+const runLogPath = "/home/erabliere/ErabliWatchDog/log/lastRun.log";
+const timeoutLimit = 90; // 90 secondes
 
 function checkActivity() {
 	const stats = fs.statSync(dbFile);
@@ -27,6 +28,11 @@ function checkActivity() {
 		restartCollecteur();
 	} else {
 		console.log("Collecteur de données en fonctionnement! " + " Delta t: " + timeDiff + " sec.");
+//		fs.open(runLogPath, 'a', (err, fd) => {
+//			fs.write(fd, Date() + ", file size: " + fileSizeInBytes + "b, Last mod.: " + modTime + ", delta t: " + timeDiff + " sec.\n", 'utf-8', 'a', (err, fd) => {
+//                                if (err) { console.log(err);}
+//			});
+//		});
 	}
 	return;
 }
