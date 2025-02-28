@@ -10,7 +10,7 @@ User=erabliere
 Group=erabliere
 WorkingDirectory=/home/erabliere/ErabliWatchDog
 PIDFile=/home/erabliere/ErabliWatchDog/pid/app.pid
-ExecStart=/home/erabliere/.nvm/versions/node/v14.15.4/bin/node /home/erabliere/ErabliWatchDog/app.js
+ExecStart=/home/erabliere/.nvm/versions/node/v22.13.1/bin/node /home/erabliere/ErabliWatchDog/app.js
 Restart=on-abnormal
 TimeoutSec=60
 
