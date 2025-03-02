@@ -4,7 +4,7 @@ const fs = require("fs"); //Load the filesystem module
 const dbFile = "/home/erabliere/ErabliCollecteur/raw_events.sqlite3";
 const logPath = "/home/erabliere/ErabliWatchDog/log/restart.log";
 const runLogPath = "/home/erabliere/ErabliWatchDog/log/lastRun.log";
-const timeoutLimit = 299; // 90 secondes
+const timeoutLimit = 299; // 5 minutes - 1 secondes
 
 function checkActivity() {
     const stats = fs.statSync(dbFile);
