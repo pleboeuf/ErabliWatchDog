@@ -1,0 +1,117 @@
+* * * * * /usr/bin/node /home/erabliere/ErabliWatchDog/CollectorWatchDog.js
+* * * * * sleep 30; /usr/bin/node /home/erabliere/ErabliWatchDog/CollectorWatchDog.js
+
+* * * * * /usr/bin/node /home/erabliere/ErabliWatchDog/CollectorWatchDog.js
+
+Keep in mind:
+1. The timeoutLimit in the code is set to 299 seconds (just under 5 minutes)
+2. Running the check every 30 seconds is more than adequate for detecting a 5-minute timeout
+3. More frequent checks would increase system load without significant benefit
+4. The service restarts take time themselves, so very frequent checks aren't necessary
+
+When testing tomorrow, you might want to:
+1. Temporarily reduce the timeoutLimit to a smaller value (e.g., 60 seconds) for easier testing
+2. Simulate a stalled collector by preventing updates to the SQLite file
+3. Check the restart.log to verify the timing of detections and restarts
+
+Would you like me to help you create a test plan or adjust the timing parameters for your specific needs?
+
+Test Plan:
+
+1. Basic Functionality Test (30-minute duration)
+# Temporarily modify CONFIG in CollectorWatchDog_new.js:
+timeoutLimit: 60  # Set to 1 minute for testing
+
+•  Run the script manually
+•  Verify it reports correct delta time
+•  Check logging format
+•  Confirm no false restarts during normal operation
+2. Normal IoT Operation Test (1 hour)
+•  Let system run normally with all devices
+•  Monitor log file for any unexpected restarts
+•  Verify delta times remain well below timeout
+
+# Watch the log in real-time
+tail -f /home/erabliere/ErabliWatchDog/log/restart.log
+
+3. Failure Detection Tests
+
+a. Collector Service Failure:
+# Stop the collector service
+sudo systemctl stop ErabliCollecteur.service
+# Wait for watchdog to detect and restart
+# Check restart.log and verify all services restarted in correct order
+
+b. Database File Access Test:
+# Temporarily change permissions on raw_events.sqlite3
+sudo chmod 000 /home/erabliere/ErabliCollecteur/raw_events.sqlite3
+# Watch error handling
+# Restore permissions
+sudo chmod 644 /home/erabliere/ErabliCollecteur/raw_events.sqlite3
+
+4. Multiple Device Failure Simulation
+# Stop network connectivity to several IoT devices
+# Monitor time until watchdog triggers
+# Verify system recovers when connectivity restored
+
+5. Resource Usage Test (2 hours)
+# Run with 30-second cron interval
+# Monitor system resources
+top -b -n 1 | grep "CollectorWatchDog"
+# Check for any memory leaks or growing log files
+
+6. Long-term Stability Test (24 hours)
+•  Return timeoutLimit to 299 seconds
+•  Run with final cron schedule
+•  Monitor for:
+◦  False positives (unnecessary restarts)
+◦  Missed failures
+◦  Log file growth
+◦  System resource usage
+7. Edge Cases Test
+•  Simulate delayed IoT updates (4-minute gaps)
+•  Test with maximum number of simultaneous events
+•  Test with minimum number of active devices
+•  Verify handling of daylight saving time transitions
+
+Test Monitoring Tools:
+# Watch all system logs
+journalctl -f
+
+# Monitor file changes
+watch -n 1 "ls -l /home/erabliere/ErabliCollecteur/raw_events.sqlite3"
+
+# Watch service statuses
+watch -n 1 "systemctl status ErabliCollecteur.service ErabliDash.service ErabliExport.service"
+
+# Watch all system logs
+journalctl -f
+
+# Monitor file changes
+watch -n 1 "ls -l /home/erabliere/ErabliCollecteur/raw_events.sqlite3"
+
+# Watch service statuses
+watch -n 1 "systemctl status ErabliCollecteur.service ErabliDash.service ErabliExport.service"
+
+Success Criteria:
+1. No false restarts during normal operation
+2. Successful detection and restart within 60 seconds of a true failure
+3. Proper logging of all events
+4. Graceful handling of all error conditions
+5. No resource leaks over 24-hour period
+6. Successful sequential restart of all services when needed
+
+Suggested Production Values:
+•  Run watchdog every 30 seconds
+•  Keep timeoutLimit at 299 seconds (5 minutes)
+•  Set up log rotation for restart.log
+
+# Example logrotate config
+/home/erabliere/ErabliWatchDog/log/restart.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+}
